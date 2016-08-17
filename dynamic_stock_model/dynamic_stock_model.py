@@ -261,6 +261,7 @@ class DynamicStockModel(object):
                     for n in range(m, len(self.i)):  # year index, year >= cohort year
                         self.s_c[n, m] = self.i[m] * (1 - self.pdf[0:n + 1, m].sum())
                     ExitFlag = 1
+                self.s_c[np.isnan(self.s_c)]=0
                 return self.s_c, ExitFlag
             else:
                 ExitFlag = 2  # No lifetime distribution specified
@@ -278,9 +279,11 @@ class DynamicStockModel(object):
                     for n in range(m + 1, len(self.s_c)):  # for all years each cohort exists
                         self.o_c[n, m] = self.s_c[n - 1, m] - self.s_c[n, m]
                 ExitFlag = 1
+                self.o_c[np.isnan(self.o_c)]=0
                 return self.o_c, ExitFlag
             else:
                 ExitFlag = 3  # o_c already exists. Doing nothing.
+                self.o_c[np.isnan(self.o_c)]=0
                 return self.o_c, ExitFlag
         else:
             ExitFlag = 2  # s_c does not exist. Doing nothing
