@@ -203,33 +203,24 @@ class DynamicStockModel(object):
                 ExitFlag = 1
 
             if self.lt['Type'] == 'Normal':
-                for m in range(0, len(self.t)):  # cohort index
-                    # year index, year larger or equal than cohort
-                    for n in range(m + 1, len(self.t)):
-                        self.pdf[n, m] = scipy.stats.norm(self.lt['Mean'][m], self.lt['StdDev'][m]).pdf(n - m)  # Call scipy's Norm function with Mean, StdDev, and Age
+                for m in range(0, len(self.t)): #cohort index
+                    self.pdf[m+1::, m] = scipy.stats.norm(self.lt['Mean'][m], self.lt['StdDev'][m]).pdf(np.arange(1, len(self.t) - m)) # Call scipy's normal function for year indices larger than cohort
                 ExitFlag = 1
-
+                        
             if self.lt['Type'] == 'Weibull': # Equivalent to the Frechet distribution
                 for m in range(0, len(self.t)):  # cohort index
-                    # year index, year larger or equal than cohort
-                    for n in range(m + 1, len(self.t)):
-                        self.pdf[n, m] = scipy.stats.weibull_min(self.lt['Shape'][m], 0, self.lt['Scale'][m]).cdf(n -m) - scipy.stats.weibull_min(self.lt['Shape'][m], 0, self.lt['Scale'][m]).cdf(n -m -1) # Call scipy's Weibull_min function with Shape, offset (0), Scale, and Age
+                    self.pdf[m+1::, m] = scipy.stats.weibull_min(self.lt['Shape'][m], 0, self.lt['Scale'][m]).cdf(np.arange(1, len(self.t) - m)) - scipy.stats.weibull_min(self.lt['Shape'][m], 0, self.lt['Scale'][m]).cdf(0, len(self.t) - m - 1) # Call scipy's Weibull_min function for year indices larger than cohort
                 ExitFlag = 1
                 
             if self.lt['Type'] == 'Exponential':
                 for m in range(0, len(self.t)):  # cohort index
-                    # year index, year larger or equal than cohort
-                    for n in range(m + 1, len(self.t)):
-                        self.pdf[n, m] = scipy.stats.expon(scale=self.lt['Mean'][m]).pdf(n - m)  # Call scipy's expon function with Mean-lifetime 
+                    self.pdf[m+1::, m] = scipy.stats.expon(scale=self.lt['Mean'][m]).pdf(np.arange(1, len(self.t) - m)) # Call scipy's exponential function for year indices larger than cohort
                 ExitFlag = 1
                 
             if self.lt['Type'] == 'Gamma': #
                 for m in range(0, len(self.t)):  # cohort index
-                    # year index, year larger or equal than cohort
-                    for n in range(m + 1, len(self.t)):
-                        self.pdf[n, m] = scipy.stats.gamma(a=self.lt['Shape'][m], loc=0,  scale=self.lt['Scale'][m]).pdf(n - m)  # Call scipy's gamma function with shape, scale, and loc=0
-                ExitFlag = 1
-                
+                    self.pdf[m+1::, m] = scipy.stats.gamma(a=self.lt['Shape'][m], loc=0,  scale=self.lt['Scale'][m]).pdf(np.arange(1, len(self.t) - m))  # Call scipy's gamma function for year indices larger than cohort
+                ExitFlag = 1                
                 
                 
             return self.pdf, ExitFlag
